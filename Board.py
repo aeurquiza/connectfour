@@ -14,19 +14,20 @@ class Board:
 		self.game_size = game_size
 
 	def is_board_full(self):
-		return len(self.full_columns) == 7
+		for col in range(0,6):
+			if self.first_available_index(col) != -1:
+				return False
+		return True
 
 	def simulate_activity(self):
 		color_dict = { True: "O", False: "I" }
 		selection = True
-		while( len(self.full_columns) != 7 and not self.winner ):
+		while( len(self.full_columns) != 7 and self.winner == False ):
 			self.make_move(randint(0,6), Piece.Piece(color_dict[selection]))
 			selection = not selection
-		if not self.winner:
-			print "ITS A TIE!"
 
 	def print_board(self):
-		board_state = "+"+7*(self.game_size*2*"-"+"-+")+"\n"
+		board_state = "\n+"+7*(self.game_size*2*"-"+"-+")+"\n"
 		for row in self.grid:
 			board_state += "+"
 			for piece in row:
@@ -35,7 +36,7 @@ class Board:
 				else:
 					board_state += (self.game_size*" ")+str(piece.get_piece_color())+(self.game_size*" ")+"|"
 			board_state += "\n+"+7*(self.game_size*2*"-"+"-+")+"\n"
-		board_state += " "+self.game_size*" "+(2*self.game_size*" "+" ").join(['1','2','3','4','5','6','7'])
+		board_state += " "+self.game_size*" "+(2*self.game_size*" "+" ").join(['1','2','3','4','5','6','7'])+" "
 		print board_state + "\n"
 
 	def first_available_index(self, column):
@@ -52,17 +53,15 @@ class Board:
 	def make_move(self, slot, piece):
 		insert_index = self.first_available_index(slot)
 		if insert_index != -1:
-			self.simulate_insertion(slot, piece, insert_index)
+#			self.simulate_insertion(slot, piece, insert_index)
 			self.grid[insert_index][slot] = piece
 			self.print_board()
 			if self.check_win(insert_index, slot, piece.get_piece_color()):
-				self.winner = True
-				print piece.get_piece_color() + " WINS!"
-			return True
+				self.winner = piece.get_piece_color()
+			return -1
 		else:
 			self.full_columns.add(slot)
-			print "Column is full"
-			return False
+			return slot
 
 	def simulate_insertion(self, slot, piece, insert_index):
 		for i in range(0, insert_index):
